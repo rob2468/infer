@@ -20,6 +20,7 @@ type build_system =
   | BGradle
   | BJava
   | BJavac
+  | BJavascript
   | BMake
   | BMvn
   | BNdk

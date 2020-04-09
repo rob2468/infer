@@ -46,6 +46,7 @@ function usage() {
 # arguments
 BUILD_CLANG=${BUILD_CLANG:-no}
 BUILD_JAVA=${BUILD_JAVA:-no}
+BUILD_JAVASCRIPT=${BUILD_JAVASCRIPT:-no}
 INFER_CONFIGURE_OPTS=${INFER_CONFIGURE_OPTS:-""}
 INTERACTIVE=${INTERACTIVE:-yes}
 JOBS=${JOBS:-$NCPU}
@@ -61,6 +62,7 @@ while [[ $# > 0 ]]; do
     all)
       BUILD_CLANG=yes
       BUILD_JAVA=yes
+      BUILD_JAVASCRIPT=yes
       shift
       continue
       ;;
@@ -71,6 +73,11 @@ while [[ $# > 0 ]]; do
       ;;
     java)
       BUILD_JAVA=yes
+      shift
+      continue
+      ;;
+    javascript)
+      BUILD_JAVASCRIPT=yes
       shift
       continue
       ;;

@@ -85,6 +85,7 @@ type build_system =
   | BGradle
   | BJava
   | BJavac
+  | BJavascript
   | BMake
   | BMvn
   | BNdk
@@ -105,6 +106,7 @@ let build_system_exe_assoc =
   ; (BGradle, "gradlew")
   ; (BJava, "java")
   ; (BJavac, "javac")
+  ; (BJavascript, "javascript")
   ; (BClang, "cc")
   ; (BClang, "clang")
   ; (BClang, "gcc")

@@ -19,6 +19,7 @@ type mode =
   | Clang of Clang.compiler * string * string list
   | ClangCompilationDB of [`Escaped of string | `Raw of string] list
   | Javac of Javac.compiler * string * string list
+  | Javascript
   | Maven of string * string list
   | PythonCapture of Config.build_system * string list
   | XcodeXcpretty of string * string list

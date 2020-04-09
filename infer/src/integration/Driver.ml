@@ -22,6 +22,7 @@ type mode =
   | Clang of Clang.compiler * string * string list
   | ClangCompilationDB of [`Escaped of string | `Raw of string] list
   | Javac of Javac.compiler * string * string list
+  | Javascript
   | Maven of string * string list
   | PythonCapture of Config.build_system * string list
   | XcodeXcpretty of string * string list
@@ -48,6 +49,8 @@ let pp_mode fmt = function
       F.fprintf fmt "XcodeXcpretty driver mode:@\nprog = '%s'@\nargs = %a" prog Pp.cli_args args
   | Javac (_, prog, args) ->
       F.fprintf fmt "Javac driver mode:@\nprog = '%s'@\nargs = %a" prog Pp.cli_args args
+  | Javascript ->
+      F.fprintf fmt "Javascript driver mode:"
   | Maven (prog, args) ->
       F.fprintf fmt "Maven driver mode:@\nprog = '%s'@\nargs = %a" prog Pp.cli_args args
   | Clang (_, prog, args) ->
@@ -295,6 +298,9 @@ let capture ~changed_files = function
   | Javac (compiler, prog, args) ->
       if CLOpt.is_originator then L.progress "Capturing in javac mode...@." ;
       Javac.capture compiler ~prog ~args
+  | Javascript ->
+      Logging.debug_dev "进入了 Javascript" ;
+      ()
   | Maven (prog, args) ->
       L.progress "Capturing in maven mode...@." ;
       Maven.capture ~prog ~args
@@ -459,6 +465,8 @@ let assert_supported_mode required_analyzer requested_mode_string =
         Version.clang_enabled
     | `Java ->
         Version.java_enabled
+    | `Javascript ->
+        Version.java_enabled
     | `Xcode ->
         Version.clang_enabled && Version.xcode_enabled
   in
@@ -469,6 +477,8 @@ let assert_supported_mode required_analyzer requested_mode_string =
           "clang"
       | `Java ->
           "java"
+      | `Javascript ->
+          "javascript"
       | `Xcode ->
           "clang and xcode"
     in
@@ -489,6 +499,8 @@ let assert_supported_build_system build_system =
   match (build_system : Config.build_system) with
   | BAnt | BGradle | BJava | BJavac | BMvn ->
       Config.string_of_build_system build_system |> assert_supported_mode `Java
+  | BJavascript ->
+      Config.string_of_build_system build_system |> assert_supported_mode `Javascript
   | BClang | BMake | BNdk ->
       Config.string_of_build_system build_system |> assert_supported_mode `Clang
   | BXcode ->
@@ -544,6 +556,8 @@ let mode_of_build_command build_cmd (buck_mode : BuckMode.t option) =
           Javac (Javac.Java, prog, args)
       | BJavac, _ ->
           Javac (Javac.Javac, prog, args)
+      | BJavascript, _ ->
+          Javascript
       | BMvn, _ ->
           Maven (prog, args)
       | BXcode, _ when Config.xcpretty ->
