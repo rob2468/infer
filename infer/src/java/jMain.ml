@@ -133,6 +133,7 @@ let main load_sources_and_classes =
   L.(debug Capture Quiet)
     "Translating %d source files (%d classes)@." (String.Map.length sources)
     (JBasics.ClassSet.cardinal classes) ;
+  Logging.debug_dev "classpath是什么%s@." classpath;
   let program = JClasspath.load_program classpath classes in
   do_all_files sources program
 

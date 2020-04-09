@@ -108,6 +108,11 @@ let capture compiler ~prog ~args =
       ()
   | _ ->
       let verbose_out_file = compile compiler prog args in
+      Logging.debug_dev "verbose文件名：%s@." verbose_out_file;
+      Logging.debug_dev "prag名：%s@." prog;
+      InferCommand.to_string Config.command |> Logging.debug_dev "infer指令名：%s@.";
       if not (InferCommand.equal Config.command Compile) then
         JMain.from_verbose_out verbose_out_file ;
-      if not Config.debug_mode then Unix.unlink verbose_out_file
+        (* 从javac的verbose输出中执行解析操作 *)
+      (* if not Config.debug_mode then Unix.unlink verbose_out_file *)
+      (* 删除临时文件 *)

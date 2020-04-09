@@ -13,6 +13,7 @@ module CLOpt = CommandLineOption
 module L = Logging
 
 let run driver_mode =
+  let () = Logging.debug_dev "入口@." in
   let open Driver in
   run_prologue driver_mode ;
   let changed_files = read_config_changed_files () in

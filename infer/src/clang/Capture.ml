@@ -16,7 +16,7 @@ let validate_decl_from_file fname =
   Atdgen_runtime.Util.Biniou.from_file ~len:CFrontend_config.biniou_buffer_size
     Clang_ast_b.read_decl fname
 
-
+(* 读取biniou格式的ast，并转换成infer的内部数据模型表达Clang_ast_t *)
 let validate_decl_from_channel chan =
   Atdgen_runtime.Util.Biniou.from_channel ~len:CFrontend_config.biniou_buffer_size
     Clang_ast_b.read_decl chan
@@ -95,10 +95,15 @@ let run_clang_frontend ast_source =
   in
   ClangPointers.populate_all_tables ast_decl ;
   L.(debug Capture Medium)
-    "Start %s the AST of %a@\n" Config.clang_frontend_action_string pp_ast_filename ast_source ;
-  if Config.linters then AL.do_frontend_checks trans_unit_ctx ast_decl ;
-  if Config.process_clang_ast then ProcessAST.process_ast trans_unit_ctx ast_decl ;
-  if Config.capture then CFrontend.do_source_file trans_unit_ctx ast_decl ;
+    "我在Start %s the AST of %a好吧@\n" Config.clang_frontend_action_string pp_ast_filename ast_source ;
+  (* if Config.linters then AL.do_frontend_checks trans_unit_ctx ast_decl ; *)
+  (* 不要 lint 功能 *)
+  (* if Config.process_clang_ast then ( ProcessAST.process_ast trans_unit_ctx ast_decl ); *)
+  (* 没走到这个case  *)
+  if Config.capture then (
+    Logging.debug_dev "也稚行了@.";
+    CFrontend.do_source_file trans_unit_ctx ast_decl
+  );
   L.(debug Capture Medium)
     "End %s the AST of file %a... OK!@\n" Config.clang_frontend_action_string pp_ast_filename
     ast_source ;
@@ -126,8 +131,11 @@ let run_clang clang_command read =
       ClangCommand.pp clang_command ;
     L.exit exit_code
   in
+  Logging.debug_dev "执行的命令是: %s@." (ClangCommand.command_to_run clang_command) ;
+
   (* NOTE: exceptions will propagate through without exiting here *)
   match Utils.with_process_in (ClangCommand.command_to_run clang_command) read with
+  (* match Utils.with_process_in "cat /Users/jam/Desktop/infer/examples/hello.c.ast.biniou" read with *)
   | res, Ok () ->
       res
   | _, Error (`Exit_non_zero n) ->
@@ -147,9 +155,13 @@ let run_clang clang_command read =
 
 let run_plugin_and_frontend source_path frontend clang_cmd =
   let clang_plugin_cmd = ClangCommand.with_plugin_args clang_cmd in
+  (* 增加了 BiniouASTExporter 此类的选项 *)
+
   if debug_mode then (
     (* -cc1 clang commands always set -o explicitly *)
     let basename = source_path ^ ".ast" in
+                      Logging.debug_dev "这里吗？%s@." basename;
+
     (* Emit the clang command with the extra args piped to infer-as-clang *)
     let frontend_script_fname = Printf.sprintf "%s.sh" basename in
     let debug_script_out = Out_channel.create frontend_script_fname in
@@ -186,14 +198,18 @@ let cc1_capture clang_cmd =
   then (
     L.(debug Capture Quiet) "@\n Skip compilation and analysis of source file %s@\n@\n" source_path ;
     () )
-  else
+  else (
     match Config.clang_biniou_file with
     | Some fname ->
         run_and_validate_clang_frontend (`File fname)
     | None ->
+        Logging.debug_dev "124@.";
+        ClangCommand.print_raw_command_argvs clang_cmd;
         run_plugin_and_frontend source_path
           (fun chan_in -> run_and_validate_clang_frontend (`Pipe chan_in))
           clang_cmd
+        (* run_plugin_and_frontend 执行编译指令生成ast；run_and_validate_clang_frontend读取ast，再调用 cFrontend 生成icfg *)
+  )
 
 
 let capture clang_cmd =

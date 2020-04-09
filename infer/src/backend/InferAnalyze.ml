@@ -86,6 +86,7 @@ let register_active_checkers () =
 
 
 let get_source_files_to_analyze ~changed_files =
+  let () = Logging.debug_dev "是不是@." in
   let n_all_source_files = ref 0 in
   let n_source_files_to_analyze = ref 0 in
   let filter sourcefile =

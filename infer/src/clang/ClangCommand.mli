@@ -15,10 +15,12 @@ val mk : is_driver:bool -> ClangQuotes.style -> prog:string -> args:string list 
     Beware that this doesn't look inside argument files. This can be used to create a "clang -###
     ..." command on which to call [command_to_run], but other functions from the module will not
     work as expected unless the command has been normalized by "clang -### ...". *)
+(* 将原始数据转换成 infer 能识别的数据模型，该函数本身不会往数据模型中添加额外参数 *)
 
 val command_to_run : t -> string
 (** Make a command into a string ready to be passed to a shell to be executed. Fine to call with
     clang driver commands. *)
+(* 将 infer 内部的命令表达转化成可以直接在 shell 中运行的字符串。（命令行选项和参数会保存到本地临时文件中，所以生成的字符串中的参数是临时文件的路径） *)
 
 val can_attach_ast_exporter : t -> bool
 (** Whether the command is suitable for attaching the AST exporter. Must be called on normalized
@@ -38,3 +40,5 @@ val append_args : string list -> t -> t
 val get_orig_argv : t -> string list
 
 val pp : Format.formatter -> t -> unit
+
+val print_raw_command_argvs : t -> unit

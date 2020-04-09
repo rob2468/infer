@@ -321,6 +321,7 @@ let capture ~changed_files mode =
 
 
 let execute_analyze ~changed_files =
+  Logging.debug_dev "是不是Driver.ml execute_analyze" ;
   register_perf_stats_report PerfStats.TotalBackend ;
   InferAnalyze.main ~changed_files ;
   PerfStats.get_reporter PerfStats.TotalBackend ()

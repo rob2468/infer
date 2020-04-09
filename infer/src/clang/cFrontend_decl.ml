@@ -49,6 +49,12 @@ module CFrontend_decl_funct (T : CModule_type.CTranslation) : CModule_type.CFron
           let meth_body_nodes =
             T.instructions_trans context body extra_instrs exit_node ~is_destructor_wrapper
           in
+(* 打印信息 *)
+          Logging.debug_dev "一个Procdesc: %a@." Procdesc.pp_signature procdesc ;
+          Logging.debug_dev "start_node: %a;\nexit_node: %a@."
+            Procdesc.Node.pp start_node Procdesc.Node.pp exit_node ;
+          List.iter ~f:(fun node -> Logging.debug_dev "bodyNodes: %a@." Procdesc.Node.pp node) meth_body_nodes;
+
           Procdesc.node_set_succs procdesc start_node ~normal:meth_body_nodes ~exn:[] ;
           match Procdesc.is_connected procdesc with
           | Ok () ->

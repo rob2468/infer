@@ -127,6 +127,7 @@ let emit_frontend_cfg source cfg =
           (DB.Results_dir.path_to_filename (DB.Results_dir.Abs_source_dir source)
              [Config.dotty_frontend_output])
   in
+  Logging.debug_dev "dot文件: %s@." fname;
   with_dot_file fname ~pp:(fun fmt ->
       Cfg.iter_sorted cfg ~f:(fun pdesc -> print_pdesc source fmt pdesc) )
 

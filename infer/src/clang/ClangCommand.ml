@@ -219,13 +219,21 @@ let mk ~is_driver quoting_style ~prog ~args =
   in
   {exec= prog; orig_argv= sanitized_args; argv= sanitized_args; quoting_style; is_driver}
 
+let print_raw_command_argvs cmd =
+  let { exec ; argv } = cmd in
+  let all = String.concat ~sep:" " argv in
+  Logging.debug_dev "可执行文件: %s\n原始参数: %s@." exec all
 
 let to_unescaped_args cmd =
   let mk_exec_argv normalizer =
-    let {exec; argv} = normalizer cmd in
+    let normalized = normalizer cmd in
+    (* 给原始命令增加了很多选项，并且写入到了文件里。ClangCommand.t 里的参数变成了这个本地文件的路径 *)
+    let {exec; argv} = normalized in
     exec :: argv
   in
-  if can_attach_ast_exporter cmd then mk_exec_argv clang_cc1_cmd_sanitizer
+  if can_attach_ast_exporter cmd then (
+    Logging.debug_dev "can_attach_ast_exporter1@." ;
+    mk_exec_argv clang_cc1_cmd_sanitizer )
   else if String.is_prefix ~prefix:"clang" (Filename.basename cmd.exec) then
     (* `clang` supports argument files and the commands can be longer than the maximum length of the
        command line, so put arguments in a file *)
@@ -237,8 +245,9 @@ let to_unescaped_args cmd =
 let pp f cmd = to_unescaped_args cmd |> Pp.cli_args f
 
 let command_to_run cmd =
-  to_unescaped_args cmd
-  |> List.map ~f:(ClangQuotes.quote cmd.quoting_style)
+  let args = to_unescaped_args cmd in
+  List.iter ~f:(fun item -> Logging.debug_dev "啊啊啊：%s @." item) args;
+  List.map ~f:(ClangQuotes.quote cmd.quoting_style) args
   |> String.concat ~sep:" "
 
 

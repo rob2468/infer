@@ -258,7 +258,7 @@ let debug kind level fmt =
         test_determinator_debug_level
   in
   let to_file = compare_debug_level level base_level <= 0 in
-  log ~to_console:false ~to_file debug_file_fmts fmt
+  log ~to_console:true ~to_file debug_file_fmts fmt
 
 
 let result fmt = log ~to_console:true result_file_fmts fmt

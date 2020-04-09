@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 
-void test() {
+void cuowufangfa() {
   int* s = NULL;
   *s = 42;
 }

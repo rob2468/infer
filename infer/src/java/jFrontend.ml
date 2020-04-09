@@ -95,8 +95,25 @@ let add_cmethod source_file program icfg cm proc_name =
     | None ->
         ()
     | Some (procdesc, start_node, exit_node, exn_node, jbir_code) ->
+        Logging.debug_dev "一个Procdesc: %a@." Procdesc.pp_signature procdesc ;
+        Logging.debug_dev "start_node: %a;\nexit_node: %a\nexn_node: %a@."
+          Procdesc.Node.pp start_node
+          Procdesc.Node.pp exit_node
+          Procdesc.Node.pp exn_node ;
         let context = JContext.create_context icfg procdesc jbir_code cn source_file program in
         let method_body_nodes = Array.mapi ~f:(JTrans.instruction context) (JBir.code jbir_code) in
+        let get_body_nodes_ current_nodes =
+          match current_nodes with
+          | JTrans.Skip ->
+              Logging.debug_dev "bodySkipexit_node@.";
+          | JTrans.Instr node ->
+              Logging.debug_dev "bodyInstr: %a@." Procdesc.Node.pp node ;
+          | JTrans.Prune (node_true, node_false) ->
+              Logging.debug_dev "bodyPrune: %a; %a@." Procdesc.Node.pp node_true Procdesc.Node.pp node_false;
+          | JTrans.Loop (join_node, node2, node3) ->
+              Logging.debug_dev "bodyLoop: %a; %a; %a@." Procdesc.Node.pp join_node Procdesc.Node.pp node2 Procdesc.Node.pp node3 ;
+        in
+        Array.iter ~f:get_body_nodes_ method_body_nodes;
         add_edges context start_node exn_node [exit_node] method_body_nodes jbir_code false
 
 
@@ -140,6 +157,7 @@ let create_icfg source_file program tenv icfg cn node =
   if Config.dependency_mode && not (is_classname_cached cn) then cache_classname cn ;
   let translate m =
     let proc_name = JTransType.translate_method_name program tenv m in
+    Logging.debug_dev "一个proc_name: %a@." Procname.pp proc_name;
     JClasspath.set_callee_translated program proc_name ;
     if JClasspath.is_model proc_name then
       (* do not translate the method if there is a model for it *)

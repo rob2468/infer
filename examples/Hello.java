@@ -1,13 +1,11 @@
-/*
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 class Hello {
   int test() {
+    int a = 1;
+    int b = 2;
     String s = null;
     return s.length();
+  }
+  int another() {
+    return 0;
   }
 }
