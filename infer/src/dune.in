@@ -30,7 +30,10 @@ let source_dirs =
        ; "test_determinator"
        ; "topl"
        ; "unit"
-       ; "unit" ^/ "nullsafe" ] )
+       ; "unit" ^/ "nullsafe" ]
+     @ [ "javascript" ]
+     (* TODO: if javascript *)
+      )
 
 
 let infer_binaries = ["infer"; "inferunit"] @ if facebook then ["InferCreateTraceViewLinks"] else []

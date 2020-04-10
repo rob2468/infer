@@ -299,8 +299,8 @@ let capture ~changed_files = function
       if CLOpt.is_originator then L.progress "Capturing in javac mode...@." ;
       Javac.capture compiler ~prog ~args
   | Javascript ->
-      Logging.debug_dev "进入了 Javascript" ;
-      ()
+      Logging.debug_dev "进入了 Javascript@." ;
+      JsCapture.capture ()
   | Maven (prog, args) ->
       L.progress "Capturing in maven mode...@." ;
       Maven.capture ~prog ~args
